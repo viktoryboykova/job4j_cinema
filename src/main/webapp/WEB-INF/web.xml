@@ -4,4 +4,21 @@
 
 <web-app>
   <display-name>Archetype Created Web Application</display-name>
+  
+  <servlet>
+    <servlet-name>HallServlet</servlet-name>
+    <servlet-class>ru.job4j.controller.HallServlet</servlet-class>
+    <load-on-startup>1</load-on-startup>
+  </servlet><servlet>
+    <servlet-name>PaymentServlet</servlet-name>
+    <servlet-class>ru.job4j.controller.PaymentServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>HallServlet</servlet-name>
+    <url-pattern>/hall</url-pattern>
+  </servlet-mapping><servlet-mapping>
+    <servlet-name>PaymentServlet</servlet-name>
+    <url-pattern>/payment</url-pattern>
+  </servlet-mapping>
 </web-app>

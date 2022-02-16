@@ -6,34 +6,87 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+          integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+          crossorigin="anonymous">
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js'></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+            integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+            crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+            integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+            crossorigin="anonymous"></script>
 
-    <title>Hello, world!</title>
+    <script>
+        function validate() {
+            if ($('#username').val() === '') {
+                alert('Заполните поле "ФИО"');
+                return false;
+            }
+            if ($('#phone').val() === '') {
+                alert('Заполните поле "Номер телефона"');
+                return false;
+            }
+            if ($('#email').val() === '') {
+                alert('Заполните поле "E-mail"');
+                return false;
+            }
+            sessionStorage.setItem("account", $('#username').val());
+            return true;
+        }
+
+        $(document).ready(function () {
+            const ticket_ids = sessionStorage.getItem("ticket_ids");
+            document.getElementById("ids").value = ticket_ids;
+            $.ajax({
+                type: 'GET',
+                url: 'http://localhost:8080/cinema/payment',
+                data: {ids:ticket_ids},
+                dataType: 'json'
+            }).done(function (data) {
+                let i = 1;
+                let sum = 0;
+                $('#message').append(`<h3 id="description">Вы выбрали ${data.length} билет(-а/-ов) </h3>`);
+                const tickets = [];
+                for (const ticket of data) {
+                    $('#description').append(`<p><font size="4"> Билет ${i}: Ряд ${ticket.row}, Место ${ticket.cell}. </font></p>`);
+                    i++;
+                    sum += ticket.price;
+                    tickets.push(ticket);
+                }
+                $('#description').append(`К оплате ${sum} рублей`);
+                sessionStorage.setItem("tickets", JSON.stringify(tickets));
+            }).fail(function (err) {
+                alert("Ошибка")
+            });
+        });
+    </script>
+
+    <title>Оплата билетов</title>
 </head>
 <body>
-<!-- Optional JavaScript -->
-<!-- jQuery first, then Popper.js, then Bootstrap JS -->
-<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-
 <div class="container">
-    <div class="row pt-3">
-        <h3>
-            Вы выбрали ряд 1 место 1, Сумма : 500 рублей.
-        </h3>
+    <div class="row pt-3" id="message">
+        <h3></h3>
     </div>
     <div class="row">
-        <form>
+        <form action="payment" method="post" onsubmit="return validate();">
             <div class="form-group">
                 <label for="username">ФИО</label>
-                <input type="text" class="form-control" id="username" placeholder="ФИО">
+                <input type="text" class="form-control" id="username" name="username" placeholder="ФИО">
             </div>
             <div class="form-group">
                 <label for="phone">Номер телефона</label>
-                <input type="text" class="form-control" id="phone" placeholder="Номер телефона">
+                <input type="text" class="form-control" id="phone" name="phone" placeholder="Номер телефона">
             </div>
-            <button type="button" class="btn btn-success">Оплатить</button>
+            <div class="form-group">
+                <label for="email">E-mail</label>
+                <input type="text" class="form-control" id="email" name="email" placeholder="E-mail">
+            </div>
+            <button type="submit" class="btn btn-success">Оплатить</button>
+            <input type="hidden" id="ids" name="ids" value="">
         </form>
     </div>
 </div>
